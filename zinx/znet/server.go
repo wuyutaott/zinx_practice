@@ -37,7 +37,7 @@ func (s *Server) Start() {
 			fmt.Println("收到客户端连接")
 
 			connection := NewConnection(ID, tcpConn, s.MsgHandler)
-			connection.Start()
+			go connection.Start()
 
 			ID++
 		}
