@@ -1,24 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"net"
-	"time"
+	"zinx_practice/zinx/znet"
 )
 
 func main() {
-	listener, err := net.Listen("tcp4", "0.0.0.0:8888")
-	if err != nil {
-		fmt.Println("net.Listen error:", err)
+	server := &znet.Server{
+		Name: "Game Server",
+		IP:   "0.0.0.0",
+		Port: 8888,
 	}
-	defer listener.Close()
 
-	fmt.Println("监听端口成功")
-
-	if _, err := listener.Accept(); err != nil {
-		fmt.Println("accept error:", err)
-	}
-	fmt.Println("收到一个连接")
-
-	time.Sleep(3 * time.Second)
+	server.Serve()
 }
