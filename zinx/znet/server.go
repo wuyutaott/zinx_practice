@@ -12,6 +12,8 @@ type Server struct {
 	IP string
 	// 服务器的端口号
 	Port int
+	// 消息处理函数
+	MsgHandler MsgHandle
 }
 
 func (s *Server) Start() {
@@ -24,29 +26,20 @@ func (s *Server) Start() {
 
 	fmt.Println("服务器启动监听")
 	go func() {
+		ID := 0
 		for {
-			conn, err := listener.Accept()
+			tcpConn, err := listener.Accept()
 			if err != nil {
 				fmt.Println("accept err:", err)
 				continue
 			}
 
-			go func() {
-				for {
-					buf := make([]byte, 512)
-					n, err := conn.Read(buf)
-					if err != nil {
-						fmt.Println("conn.Read err:", err)
-						return
-					}
-
-					fmt.Println("收到客户端消息：", string(buf[:n]))
-
-					conn.Write(buf[:n])
-				}
-			}()
-
 			fmt.Println("收到客户端连接")
+
+			connection := NewConnection(ID, tcpConn, s.MsgHandler)
+			connection.Start()
+
+			ID++
 		}
 	}()
 }
