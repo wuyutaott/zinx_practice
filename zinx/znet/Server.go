@@ -25,11 +25,26 @@ func (s *Server) Start() {
 	fmt.Println("服务器启动监听")
 	go func() {
 		for {
-			_, err := listener.Accept()
+			conn, err := listener.Accept()
 			if err != nil {
 				fmt.Println("accept err:", err)
 				continue
 			}
+
+			go func() {
+				for {
+					buf := make([]byte, 512)
+					n, err := conn.Read(buf)
+					if err != nil {
+						fmt.Println("conn.Read err:", err)
+						return
+					}
+
+					fmt.Println("收到客户端消息：", buf[:n])
+
+					conn.Write(buf[:n])
+				}
+			}()
 
 			fmt.Println("收到客户端连接")
 		}
