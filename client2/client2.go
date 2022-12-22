@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	conn.Write([]byte{'h', 'e', 'l', 'l', 'o'})
+	conn.Write([]byte{'1', '2', '3'})
 
 	for {
 		buf := make([]byte, 512)
@@ -24,7 +24,7 @@ func main() {
 			fmt.Println("conn.Read err:", err)
 			return
 		}
-		fmt.Println("收到服务器消息：", buf[:n])
+		fmt.Println("收到服务器消息：", string(buf[:n]))
 
 		time.Sleep(1 * time.Second)
 

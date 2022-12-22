@@ -40,7 +40,7 @@ func (s *Server) Start() {
 						return
 					}
 
-					fmt.Println("收到客户端消息：", buf[:n])
+					fmt.Println("收到客户端消息：", string(buf[:n]))
 
 					conn.Write(buf[:n])
 				}

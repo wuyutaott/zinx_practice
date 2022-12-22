@@ -24,7 +24,7 @@ func main() {
 			fmt.Println("conn.Read err:", err)
 			return
 		}
-		fmt.Println("收到服务器消息：", buf[:n])
+		fmt.Println("收到服务器消息：", string(buf[:n]))
 
 		time.Sleep(1 * time.Second)
 
