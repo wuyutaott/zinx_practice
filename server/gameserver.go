@@ -6,18 +6,28 @@ import (
 	"zinx_practice/zinx/znet"
 )
 
-func msgProcess(conn ziface.IConnection, data []byte, len int) {
-	fmt.Println("消息处理")
-	conn.Send(data[0:len])
+type PingRouter struct {
+	znet.BaseRouter
+}
+
+func (r *PingRouter) PrevHandle(request ziface.IRequest) {
+	fmt.Println("before ping")
+	request.GetConn().Send([]byte("before ping"))
+}
+
+func (r *PingRouter) Handle(request ziface.IRequest) {
+	fmt.Println("ping")
+	request.GetConn().Send([]byte("ping"))
+}
+
+func (r *PingRouter) PostHandle(request ziface.IRequest) {
+	fmt.Println("after ping")
+	request.GetConn().Send([]byte("after ping"))
 }
 
 func main() {
-	server := &znet.Server{
-		Name: "Game Server",
-		IP:   "0.0.0.0",
-		Port: 8888,
-		MsgHandler: msgProcess,
-	}
+	router := &PingRouter{}
+	server := znet.NewServer("Game Server", "0.0.0.0", 8888, router)
 
 	server.Serve()
 }

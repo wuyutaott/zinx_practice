@@ -6,12 +6,10 @@ import (
 	"zinx_practice/zinx/ziface"
 )
 
-type MsgHandle func(conn ziface.IConnection, data []byte, len int)
-
 type Connection struct {
 	ID         int
 	Conn       net.Conn
-	msgHandler MsgHandle
+	Router 	   ziface.IRouter
 	ExitChan   chan bool
 }
 
@@ -19,13 +17,20 @@ type Connection struct {
 func (c *Connection) startRead() {
 	for {
 		buf := make([]byte, 512)
-		n, err := c.Conn.Read(buf)
+		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("conn.Read err:", err)
 			c.ExitChan <- true
 			return
 		}
-		c.msgHandler(c, buf, n)
+
+		req := NewRequest(c, buf)
+
+		go func() {
+			c.Router.PrevHandle(req)
+			c.Router.Handle(req)
+			c.Router.PostHandle(req)
+		}()
 	}
 }
 
@@ -59,12 +64,12 @@ func (c *Connection) GetRemoteAddr() net.Addr {
 }
 
 // NewConnection 新建一个连接
-func NewConnection(ID int, conn net.Conn, msgHandler MsgHandle) ziface.IConnection {
+func NewConnection(ID int, conn net.Conn, router ziface.IRouter) ziface.IConnection {
 	fmt.Println("连接建立 ID =", ID)
 	return &Connection{
 		ID:         ID,
 		Conn:       conn,
-		msgHandler: msgHandler,
+		Router: 	router,
 		ExitChan:   make(chan bool),
 	}
 }

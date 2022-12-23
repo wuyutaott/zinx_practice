@@ -3,6 +3,7 @@ package znet
 import (
 	"fmt"
 	"net"
+	"zinx_practice/zinx/ziface"
 )
 
 type Server struct {
@@ -12,8 +13,8 @@ type Server struct {
 	IP string
 	// 服务器的端口号
 	Port int
-	// 消息处理函数
-	MsgHandler MsgHandle
+	// 消息路由
+	Router ziface.IRouter
 }
 
 func (s *Server) Start() {
@@ -36,7 +37,7 @@ func (s *Server) Start() {
 
 			fmt.Println("收到客户端连接")
 
-			connection := NewConnection(ID, tcpConn, s.MsgHandler)
+			connection := NewConnection(ID, tcpConn, s.Router)
 			go connection.Start()
 
 			ID++
@@ -52,5 +53,14 @@ func (s *Server) Serve() {
 	s.Start()
 	for {
 		select {}
+	}
+}
+
+func NewServer(name string, ip string, port int, router ziface.IRouter) ziface.IServer {
+	return &Server{
+		Name: name,
+		IP: ip,
+		Port: port,
+		Router: router,
 	}
 }
