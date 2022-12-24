@@ -4,20 +4,20 @@ import "zinx_practice/zinx/ziface"
 
 type Request struct {
 	conn ziface.IConnection
-	data []byte
+	msg ziface.IMessage
 }
 
 func (r *Request) GetConn() ziface.IConnection {
 	return r.conn
 }
 
-func (r *Request) GetData() []byte {
-	return r.data
+func (r *Request) GetMsg() ziface.IMessage {
+	return r.msg
 }
 
-func NewRequest(conn ziface.IConnection, data []byte) ziface.IRequest {
+func NewRequest(conn ziface.IConnection, msg ziface.IMessage) ziface.IRequest {
 	return &Request{
 		conn: conn,
-		data: data,
+		msg: msg,
 	}
 }

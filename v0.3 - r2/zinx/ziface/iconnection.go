@@ -5,7 +5,7 @@ import "net"
 type IConnection interface {
 	Start()
 	Stop()
-	Send(data []byte)
+	Send(msg IMessage) error
 	GetRemoteAddr() string
 	GetTcpConn() *net.TCPConn
 }

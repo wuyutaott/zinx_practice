@@ -2,6 +2,7 @@ package znet
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"zinx_practice/zinx/ziface"
 )
@@ -15,14 +16,30 @@ type Connection struct {
 
 func (c *Connection) startRead() {
 	for {
-		buf := make([]byte, 512)
-		_, err := c.tcpConn.Read(buf)
+		header := make([]byte, 8)
+		if _, err := io.ReadFull(c.tcpConn, header); err != nil {
+			c.closeChan <- true
+			fmt.Println("read header err:", err)
+			return
+		}
+
+		dp := NewDataPack()
+		msg, err := dp.UnPack(header)
 		if err != nil {
+			fmt.Println("UnPack err:", err)
 			c.closeChan <- true
 			return
 		}
 
-		req := NewRequest(c, buf)
+		body := make([]byte, msg.GetDataLength())
+		if _, err := io.ReadFull(c.tcpConn, body); err != nil {
+			c.closeChan <- true
+			fmt.Println("read body err:", err)
+			return
+		}
+		msg.SetData(body)
+
+		req := NewRequest(c, msg)
 
 		go func() {
 			if c.router != nil {
@@ -47,11 +64,16 @@ func (c *Connection) Stop() {
 	close(c.closeChan)
 }
 
-func (c *Connection) Send(data []byte) {
-	_, err := c.tcpConn.Write(data)
+func (c *Connection) Send(msg ziface.IMessage) error {
+	dp := NewDataPack()
+	data, err := dp.Pack(msg)
 	if err != nil {
-		fmt.Println("send err:", err)
+		return err
 	}
+	if _, err := c.tcpConn.Write(data); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Connection) GetRemoteAddr() string {

@@ -39,3 +39,7 @@ func (dp *DataPack) UnPack(data []byte) (ziface.IMessage, error) {
 	}
 	return msg, nil
 }
+
+func NewDataPack() ziface.IDataPack {
+	return &DataPack{}
+}

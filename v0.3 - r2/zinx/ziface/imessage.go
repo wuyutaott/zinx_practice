@@ -4,4 +4,5 @@ type IMessage interface {
 	GetDataLength() uint32
 	GetID() uint32
 	GetData() []byte
+	SetData(data []byte)
 }

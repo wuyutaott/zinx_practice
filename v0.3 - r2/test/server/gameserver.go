@@ -11,17 +11,27 @@ type PingRouter struct {
 	znet.BaseRouter
 }
 
-func (pr *PingRouter) PrevHandle(req ziface.IRequest) {
-	fmt.Println("PrevHandle")
-}
-
 func (pr *PingRouter) Handle(req ziface.IRequest) {
-	fmt.Println("Handle")
-	req.GetConn().Send([]byte("你好"))
-}
+	msg := req.GetMsg()
+	fmt.Printf("收到客户端消息 id = %d, data = %s \n", msg.GetID(), string(msg.GetData()))
 
-func (pr *PingRouter) PostHandle(req ziface.IRequest) {
-	fmt.Println("PostHandle")
+	msg2 := &znet.Message{
+		ID: 2,
+		DataLen: 5,
+		Data: []byte("world"),
+	}
+	if err := req.GetConn().Send(msg2); err != nil {
+		fmt.Println("send msg err:", err)
+	}
+
+	msg3 := &znet.Message{
+		ID: 3,
+		DataLen: 5,
+		Data: []byte("12345"),
+	}
+	if err := req.GetConn().Send(msg3); err != nil {
+		fmt.Println("send msg err:", err)
+	}
 }
 
 func main()  {
